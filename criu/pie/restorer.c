@@ -208,6 +208,7 @@ static int restore_creds(struct thread_creds_args *args, int procfd, int lsm_typ
 	/*
 	 * Setup supplementary group IDs early.
 	 */
+#if 0
 	if (args->groups) {
 		/*
 		 * We may be in an unprivileged user namespace where setgroups
@@ -220,6 +221,16 @@ static int restore_creds(struct thread_creds_args *args, int procfd, int lsm_typ
 			ret = sys_setgroups(ce->n_groups, args->groups);
 			if (ret) {
 				pr_err("Can't setgroups([%zu gids]): %d\n", ce->n_groups, ret);
+				return -1;
+			}
+		}
+	}
+#endif
+	if (!uid) {
+		if (args->groups) {
+			ret = sys_setgroups(ce->n_groups, args->groups);
+			if (ret) {
+				pr_err("Can't setup supplementary group IDs: %d\n", ret);
 				return -1;
 			}
 		}
