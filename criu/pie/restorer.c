@@ -199,11 +199,13 @@ static int restore_creds(struct thread_creds_args *args, int procfd, int lsm_typ
 	/*
 	 * Setup supplementary group IDs early.
 	 */
-	if (args->groups) {
-		ret = sys_setgroups(ce->n_groups, args->groups);
-		if (ret) {
-			pr_err("Can't setup supplementary group IDs: %d\n", ret);
-			return -1;
+	if (!uid) {
+		if (args->groups) {
+			ret = sys_setgroups(ce->n_groups, args->groups);
+			if (ret) {
+				pr_err("Can't setup supplementary group IDs: %d\n", ret);
+				return -1;
+			}
 		}
 	}
 
