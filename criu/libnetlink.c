@@ -80,8 +80,11 @@ int do_rtnl_req(int nl, void *req, int size, int (*receive_callback)(struct nlms
 	iov.iov_len = size;
 
 	if (sendmsg(nl, &msg, 0) < 0) {
+		if (errno == EACCES)
+			pr_warn("Can't send request message\n");
+		else
+			pr_perror("Can't send request message");
 		err = -errno;
-		pr_perror("Can't send request message");
 		goto err;
 	}
 
