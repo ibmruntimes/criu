@@ -374,7 +374,7 @@ static int unix_conf_op(SysctlEntry ***rconf, size_t *n, int op)
 	if (opts.weak_sysctls || op == CTL_READ)
 		flags = CTL_FLAGS_OPTIONAL;
 
-	for (i = 0; i < *n; i++) {
+	for (i = 0; i < ARRAY_SIZE(unix_conf_entries); i++) {
 		snprintf(path[i], MAX_CONF_UNIX_PATH, CONF_UNIX_FMT, unix_conf_entries[i]);
 		req[i].name = path[i];
 		req[i].flags = flags;
@@ -390,7 +390,7 @@ static int unix_conf_op(SysctlEntry ***rconf, size_t *n, int op)
 		}
 	}
 
-	ret = sysctl_op(req, *n, op, CLONE_NEWNET);
+	ret = sysctl_op(req, ARRAY_SIZE(unix_conf_entries), op, CLONE_NEWNET);
 	if (ret < 0) {
 		pr_err("unix: Failed to %s %s/<confs>\n", (op == CTL_READ) ? "read" : "write", CONF_UNIX_BASE);
 		return -1;
@@ -399,7 +399,7 @@ static int unix_conf_op(SysctlEntry ***rconf, size_t *n, int op)
 	if (op == CTL_READ) {
 		bool has_entries = false;
 
-		for (i = 0; i < *n; i++) {
+		for (i = 0; i < ARRAY_SIZE(unix_conf_entries); i++) {
 			if (req[i].flags & CTL_FLAGS_HAS) {
 				conf[i]->has_iarg = true;
 				if (!has_entries)
